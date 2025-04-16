@@ -6,16 +6,28 @@ import * as THREE from "three";
 export function Earth(props) {
   const earthRef = useRef();
 
-  const { nodes, materials } = useGLTF("/assets/earth/scene.gltf");
+  const { nodes, materials } = useGLTF(
+    import.meta.env.BASE_URL + "assets/earth/scene.gltf"
+  );
 
   const textures = useTexture({
-    map: "/assets/earth/textures/Material_50_baseColor.jpeg",
-    emissiveMap: "/assets/earth/textures/Material_50_emissive.jpeg",
+    map:
+      import.meta.env.BASE_URL +
+      "assets/earth/textures/Material_50_baseColor.jpeg",
+    emissiveMap:
+      import.meta.env.BASE_URL +
+      "assets/earth/textures/Material_50_emissive.jpeg",
     metalnessRoughnessMap:
-      "/assets/earth/textures/Material_50_metallicRoughness.png",
-    normalMap: "/assets/earth/textures/Material_50_normal.png",
-    cloudMap: "/assets/earth/textures/Material_62_baseColor.png",
-    cloudEmissive: "/assets/earth/textures/Material_62_emissive.jpeg",
+      import.meta.env.BASE_URL +
+      "assets/earth/textures/Material_50_metallicRoughness.png",
+    normalMap:
+      import.meta.env.BASE_URL + "assets/earth/textures/Material_50_normal.png",
+    cloudMap:
+      import.meta.env.BASE_URL +
+      "assets/earth/textures/Material_62_baseColor.png",
+    cloudEmissive:
+      import.meta.env.BASE_URL +
+      "assets/earth/textures/Material_62_emissive.jpeg",
   });
 
   useEffect(() => {
@@ -79,4 +91,4 @@ export function Earth(props) {
   );
 }
 
-useGLTF.preload("/assets/earth/scene.gltf");
+useGLTF.preload(import.meta.env.BASE_URL + "assets/earth/scene.gltf");

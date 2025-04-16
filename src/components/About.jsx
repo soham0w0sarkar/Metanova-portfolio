@@ -43,7 +43,7 @@ const About = () => {
         </h2>
         <div className="rounded-full overflow-hidden h-40 w-40 flex-shrink-0 fixed top-8 right-8">
           <img
-            src="/assets/mugshot.png"
+            src={import.meta.env.BASE_URL + "assets/mugshot.png"}
             alt="Yash and Soham"
             className="h-full w-full object-cover"
           />
