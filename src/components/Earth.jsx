@@ -19,9 +19,6 @@ export function Earth(props) {
   });
 
   useEffect(() => {
-    textures.map.encoding = THREE.sRGBEncoding;
-    textures.emissiveMap.encoding = THREE.sRGBEncoding;
-
     [
       textures.map,
       textures.normalMap,
