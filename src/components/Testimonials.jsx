@@ -2,17 +2,53 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const testimonials = [
-  { name: "Alice", quote: "Truly impressed with the quality!" },
-  { name: "Bob", quote: "Creative and professional – highly recommend." },
-  { name: "Charlie", quote: "Always delivers more than expected." },
-  { name: "Dana", quote: "Working together was seamless." },
-  { name: "Eli", quote: "Brings ideas to life!" },
-  { name: "Faye", quote: "Super reliable and fast." },
-  { name: "Gabe", quote: "Can't wait to collaborate again!" },
-  { name: "Hana", quote: "Loved every detail in the final product." },
-  { name: "Ian", quote: "Top-tier results every time." },
-  { name: "Juno", quote: "Absolute game changer." },
+  {
+    name: "Hamza",
+    quote: "Great working with him.",
+  },
+  {
+    name: "SpeechBuddy Team",
+    quote: "Confident and efficient throughout the process.",
+  },
+
+  {
+    name: "Cebe Chakraborty",
+
+    quote:
+      "Built a Chrome extension with him. It was a breeze — tasks were done efficiently and quickly.",
+  },
+  {
+    name: "Soumya S.",
+
+    quote:
+      "Working with Soham S. on our company's website was a phenomenal experience. His excellent communication and unwavering confidence in his skills made the project smooth and efficient. The end result was not just functional but also very scalably designed. We highly recommend Soham S. for any web development project.",
+  },
+  {
+    name: "Min-jun Lee",
+    quote: "Best experience working with him.",
+  },
+  {
+    name: "Aarav Mehta",
+    quote: "Seamless from start to finish — Soham truly gets it done.",
+  },
+  {
+    name: "Lena Park",
+    quote: "Incredible attention to detail. Every feature worked perfectly.",
+  },
+  {
+    name: "Carlos Rivera",
+    quote:
+      "Professional, fast, and very easy to work with. Highly recommended!",
+  },
 ];
+
+// working with Soham S. on our company's website was a phenomenal experience. His excellent communication and unwavering confidence in his skills made the project smooth and efficient. The end result was not just functional but also very scalably designed. We highly recommend Soham S. for any web development project"
+
+// Soumya S. | Junior Architect
+// Website development Sep 2023
+
+//"Great working with him"
+//hamza
 
 const CARD_HEIGHT = 110;
 const MIN_VERTICAL_GAP = 50;
