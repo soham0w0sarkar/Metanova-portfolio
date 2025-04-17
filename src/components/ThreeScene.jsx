@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense, useCallback, memo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Stars, OrbitControls } from "@react-three/drei";
+import { Stars, OrbitControls, useTexture } from "@react-three/drei";
 import { Earth } from "./Earth";
 import Navbar from "./Navbar";
 import { AnimatePresence, motion } from "framer-motion";
@@ -19,8 +19,8 @@ const ThreeCanvas = memo(() => (
   <Canvas
     camera={{ position: [0, 0, 10], fov: 75 }}
     className="absolute inset-0 z-0"
-    dpr={[1, 2]} // Optimize for different device pixel ratios
-    performance={{ min: 0.5 }} // Lower resolution during interactions
+    dpr={[1, 2]}
+    performance={{ min: 0.5 }}
   >
     <ambientLight intensity={2} />
     <directionalLight position={[5, 3, 5]} intensity={1} />
@@ -38,7 +38,7 @@ const ThreeCanvas = memo(() => (
 
 ThreeCanvas.displayName = "ThreeCanvas";
 
-// Loading overlay component that sits on top of the 3D canvas
+// Loading overlay component
 const LoadingOverlay = ({ progress }) => {
   const defaultOptions = {
     loop: true,
@@ -85,61 +85,99 @@ const LoadingOverlay = ({ progress }) => {
   );
 };
 
-// Fallback component for Suspense
-const SectionFallback = () => (
-  <div className="text-white text-center pointer-events-auto">
-    Loading section...
-  </div>
-);
+// A completely transparent fallback for Suspense - essentially no loading indicator
+const InvisibleFallback = () => null;
 
 const Portfolio = () => {
   const [activeSection, setActiveSection] = useState("home");
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Animation variants for section transitions
   const variants = {
     initial: { opacity: 0, y: 30 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
     exit: { opacity: 0, y: -20, transition: { duration: 0.4 } },
   };
 
-  // Optimized loading simulation with better timing
+  // Combined loading and preloading effect
   useEffect(() => {
     if (isLoaded) return;
 
-    // Preload critical assets
     const preloadAssets = async () => {
-      // You could add actual asset preloading here
-      // For example, preloading images or other resources
-
       const startTime = Date.now();
-      const duration = 3000; // 3 seconds total loading time
+      // Allow at least 3 seconds for the loading animation
+      const minLoadingTime = 3000;
 
-      const updateProgress = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(100, (elapsed / duration) * 100);
+      try {
+        // Start tracking actual loading progress
+        let actualProgress = 0;
+        setLoadingProgress(actualProgress);
 
-        setLoadingProgress(progress);
+        // Step 1: Preload components (30% of progress)
+        const componentImports = [
+          import("./Home"),
+          import("./Projects"),
+          import("./Testimonials"),
+          import("./About"),
+          import("./Contact"),
+        ];
 
-        if (progress < 100) {
-          requestAnimationFrame(updateProgress);
-        } else {
-          // Add a small delay before removing the loading screen
-          setTimeout(() => setIsLoaded(true), 800);
+        for (let i = 0; i < componentImports.length; i++) {
+          await componentImports[i];
+          actualProgress = 5 + (i + 1) * 5; // 5-30% progress
+          setLoadingProgress(actualProgress);
         }
-      };
 
-      requestAnimationFrame(updateProgress);
+        // Step 2: Preload images (30-70% of progress)
+        const imagesToPreload = [
+          import.meta.env.BASE_URL + "assets/logo.png",
+          import.meta.env.BASE_URL + "assets/mugshot.png",
+          // Add other important images here
+        ];
+
+        for (let i = 0; i < imagesToPreload.length; i++) {
+          await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = imagesToPreload[i];
+            img.onload = resolve;
+            img.onerror = reject;
+          });
+          actualProgress = 30 + (i + 1) * (40 / imagesToPreload.length); // 30-70% progress
+          setLoadingProgress(actualProgress);
+        }
+
+        // Step 3: Final preparations (70-100%)
+        for (let i = 0; i < 6; i++) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          actualProgress = 70 + (i + 1) * 5; // 70-100% progress
+          setLoadingProgress(actualProgress);
+        }
+
+        // Ensure we show the loading screen for at least minLoadingTime
+        const elapsed = Date.now() - startTime;
+        if (elapsed < minLoadingTime) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, minLoadingTime - elapsed)
+          );
+        }
+
+        // Finally complete the loading
+        setLoadingProgress(100);
+        setTimeout(() => setIsLoaded(true), 800);
+      } catch (error) {
+        console.error("Error during preloading:", error);
+        // Even on error, complete the loading process
+        setLoadingProgress(100);
+        setTimeout(() => setIsLoaded(true), 800);
+      }
     };
 
     preloadAssets();
   }, [isLoaded]);
 
-  // Memoized section renderer to prevent unnecessary re-renders
   const renderSection = useCallback(() => {
     return (
-      <Suspense fallback={<SectionFallback />}>
+      <Suspense fallback={<InvisibleFallback />}>
         {activeSection === "home" && <Home />}
         {activeSection === "projects" && <Projects />}
         {activeSection === "testimonials" && <Testimonials />}
