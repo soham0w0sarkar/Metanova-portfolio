@@ -36,12 +36,12 @@ const About = () => {
   }, []);
 
   return (
-    <div className="w-full h-full px-8 py-16 text-white pointer-events-auto">
-      <div className="flex items-center justify-between mb-16 relative">
-        <h2 className="text-5xl font-bold tracking-wider text-left pl-6 relative">
+    <div className="w-full h-full px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 text-white pointer-events-auto">
+      <div className="flex items-center justify-between mb-8 sm:mb-12 md:mb-16 relative">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-wider text-left pl-3 sm:pl-6 relative">
           <span className="relative">ABOUT US</span>
         </h2>
-        <div className="rounded-full overflow-hidden h-40 w-40 flex-shrink-0 fixed top-8 right-8">
+        <div className="rounded-full overflow-hidden h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 flex-shrink-0 fixed top-4 sm:top-6 md:top-8 right-4 sm:right-6 md:right-8">
           <img
             src={import.meta.env.BASE_URL + "assets/mugshot.png"}
             alt="Yash and Soham"
@@ -50,7 +50,7 @@ const About = () => {
         </div>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {aboutTexts.map((text, index) => (
           <div
             key={index}
@@ -60,7 +60,7 @@ const About = () => {
           >
             <div
               ref={(el) => (textRefs.current[index] = el)}
-              className={`max-w-xl text-lg text-gray-300 leading-relaxed px-6
+              className={`max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl text-base sm:text-lg text-gray-300 leading-relaxed px-4 sm:px-6
                 opacity-0 translate-y-4 transition-all duration-500 delay-${
                   (index % 5) * 100
                 }

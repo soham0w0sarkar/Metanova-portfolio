@@ -24,7 +24,6 @@
     "react": "^19.0.0",
     "react-dom": "^19.1.0",
     "react-lottie": "^1.2.10",
-    "react-player": "^2.16.0",
     "tailwind-scrollbar-hide": "^2.0.0",
     "tailwindcss": "^4.1.4",
     "three": "^0.175.0"

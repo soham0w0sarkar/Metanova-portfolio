@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 
 const testimonials = [
@@ -10,16 +10,13 @@ const testimonials = [
     name: "SpeechBuddy Team",
     quote: "Confident and efficient throughout the process.",
   },
-
   {
-    name: "Cebe Chakraborty",
-
+    name: "Cebe Chakraborthy",
     quote:
       "Built a Chrome extension with him. It was a breeze — tasks were done efficiently and quickly.",
   },
   {
     name: "Soumya S.",
-
     quote:
       "Working with Soham S. on our company's website was a phenomenal experience. His excellent communication and unwavering confidence in his skills made the project smooth and efficient. The end result was not just functional but also very scalably designed. We highly recommend Soham S. for any web development project.",
   },
@@ -42,117 +39,137 @@ const testimonials = [
   },
 ];
 
-// working with Soham S. on our company's website was a phenomenal experience. His excellent communication and unwavering confidence in his skills made the project smooth and efficient. The end result was not just functional but also very scalably designed. We highly recommend Soham S. for any web development project"
-
-// Soumya S. | Junior Architect
-// Website development Sep 2023
-
-//"Great working with him"
-//hamza
-
-const CARD_HEIGHT = 110;
-const MIN_VERTICAL_GAP = 50;
-const TITLE_HEIGHT = 100;
-const TOP_BUFFER = TITLE_HEIGHT + MIN_VERTICAL_GAP;
-const BOTTOM_BUFFER = 40;
-
-const generateNonOverlappingTopPositions = (
-  count,
-  screenHeight,
-  cardHeight = CARD_HEIGHT,
-  minGap = MIN_VERTICAL_GAP,
-  topBuffer = TOP_BUFFER,
-  bottomBuffer = BOTTOM_BUFFER
-) => {
-  const usableHeight = screenHeight - topBuffer - bottomBuffer;
-  const requiredSpacePerCard = cardHeight + minGap;
-  const maxFit = Math.floor(usableHeight / requiredSpacePerCard);
-
-  if (count > maxFit) {
-    console.warn(
-      "Not enough vertical space to guarantee minimum gap for all testimonials."
-    );
-    // Fallback to a more compact spacing if needed
-    const evenlySpaced = Array.from({ length: count }, (_, i) => {
-      return topBuffer + (usableHeight / count) * i;
-    });
-    return evenlySpaced.sort(() => Math.random() - 0.5);
-  }
-
-  const availablePositions = [];
-  for (let i = 0; i < count; i++) {
-    availablePositions.push(
-      topBuffer + Math.random() * (usableHeight - cardHeight)
-    );
-  }
-
-  // Ensure minimum distance
-  const finalPositions = [];
-  availablePositions.sort((a, b) => a - b); // Sort to easily check for overlaps
-
-  for (const pos of availablePositions) {
-    let isOverlapping = false;
-    for (const finalPos of finalPositions) {
-      if (Math.abs(pos - finalPos) < cardHeight + minGap) {
-        isOverlapping = true;
-        break;
-      }
-    }
-    if (!isOverlapping) {
-      finalPositions.push(pos);
-      if (finalPositions.length === count) break; // Found enough non-overlapping positions
-    }
-  }
-
-  // If we couldn't find enough non-overlapping positions with the first pass,
-  // we might need a more sophisticated algorithm or to accept some overlap.
-  // For simplicity, we'll just return what we have and shuffle.
-  return finalPositions.sort(() => Math.random() - 0.5);
-};
-
 const Testimonials = () => {
-  const [screenHeight, setScreenHeight] = React.useState(window.innerHeight);
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth,
+  });
 
-  React.useEffect(() => {
+  // Update dimensions on window resize
+  useEffect(() => {
     const handleResize = () => {
-      setScreenHeight(window.innerHeight);
+      setDimensions({
+        height: window.innerHeight,
+        width: window.innerWidth,
+      });
     };
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const topPositions = React.useMemo(
-    () => generateNonOverlappingTopPositions(testimonials.length, screenHeight),
-    [screenHeight]
-  );
+  // Calculate responsive values
+  const responsiveValues = useMemo(() => {
+    const cardHeight = Math.max(dimensions.height * 0.12, 80); // Min height of 80px
+    const titleHeight = Math.max(dimensions.height * 0.08, 60); // Min height of 60px
+    const verticalGap = Math.max(dimensions.height * 0.05, 30); // Min gap of 30px
+    const topBuffer = titleHeight + verticalGap;
+    const bottomBuffer = dimensions.height * 0.04;
+
+    return { cardHeight, titleHeight, verticalGap, topBuffer, bottomBuffer };
+  }, [dimensions.height]);
+
+  // Helper function to redistribute positions when overlaps can't be resolved
+  const redistributePositions = (
+    count,
+    screenHeight,
+    cardHeight,
+    minGap,
+    topBuffer,
+    bottomBuffer
+  ) => {
+    const usableHeight = screenHeight - topBuffer - bottomBuffer;
+    const segment = usableHeight / count;
+
+    return Array.from({ length: count }, (_, i) => {
+      // Add some randomness within each segment
+      const randomOffset = Math.random() * (segment - cardHeight);
+      return topBuffer + segment * i + randomOffset;
+    });
+  };
+
+  // Generate non-overlapping vertical positions
+  const topPositions = useMemo(() => {
+    const { cardHeight, topBuffer, bottomBuffer, verticalGap } =
+      responsiveValues;
+    const usableHeight = dimensions.height - topBuffer - bottomBuffer;
+
+    // Generate initial random positions
+    let positions = testimonials.map(() => {
+      return topBuffer + Math.random() * (usableHeight - cardHeight);
+    });
+
+    // Sort positions for easier overlap detection
+    positions.sort((a, b) => a - b);
+
+    // Check for overlaps and adjust
+    for (let i = 1; i < positions.length; i++) {
+      if (positions[i] - positions[i - 1] < cardHeight + verticalGap) {
+        // Try to move current position down
+        const newPos = positions[i - 1] + cardHeight + verticalGap;
+
+        // If we can't move down without exceeding usable area, redistribute
+        if (newPos + cardHeight > dimensions.height - bottomBuffer) {
+          positions = redistributePositions(
+            testimonials.length,
+            dimensions.height,
+            cardHeight,
+            verticalGap,
+            topBuffer,
+            bottomBuffer
+          );
+          break;
+        }
+
+        positions[i] = newPos;
+      }
+    }
+
+    // Shuffle the final positions
+    return positions.sort(() => Math.random() - 0.5);
+  }, [dimensions, responsiveValues]);
+
+  // Calculate animation speed based on screen width
+  const getAnimationDuration = (index) => {
+    const baseSpeed = dimensions.width * 0.03; // Wider screens = longer animation
+    return baseSpeed + index * 1.5;
+  };
 
   return (
     <div className="relative w-full h-screen overflow-hidden pointer-events-auto text-white">
-      {/* Title */}
-      <div className="absolute top-10 left-10 z-10">
-        <h2 className="text-5xl font-bold">Testimonials</h2>
+      {/* Title - scales with viewport */}
+      <div className="absolute top-0 left-0 p-4 sm:p-6 md:p-8 lg:p-10 z-10">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+          Testimonials
+        </h2>
       </div>
 
       {/* Flying testimonials */}
       {testimonials.map((testimonial, index) => (
         <motion.div
           key={index}
-          initial={{ x: "100vw", y: `${topPositions[index] || TOP_BUFFER}px` }}
-          animate={{ x: "-100vw" }}
+          initial={{
+            x: dimensions.width,
+            y: topPositions[index] || responsiveValues.topBuffer,
+          }}
+          animate={{ x: -dimensions.width * 1.2 }}
           transition={{
-            duration: 30 + index * 1.5,
+            duration: getAnimationDuration(index),
             delay: index * 2,
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute w-72 bg-white/10 backdrop-blur-md border border-white/20 text-white p-4 rounded-xl shadow-lg"
+          className="absolute w-56 sm:w-64 md:w-72 bg-white/10 backdrop-blur-md border border-white/20 text-white p-3 md:p-4 rounded-xl shadow-lg"
           style={{
-            top: 0, // Let framer-motion control the vertical position
+            top: 0,
             left: 0,
+            maxWidth: dimensions.width * 0.8, // Limit width on very small screens
           }}
         >
-          <p className="text-md italic mb-2">"{testimonial.quote}"</p>
-          <p className="text-sm text-blue-300 text-right">
+          <p className="text-sm md:text-md italic mb-2">
+            "{testimonial.quote}"
+          </p>
+          <p className="text-xs md:text-sm text-blue-300 text-right">
             - {testimonial.name}
           </p>
         </motion.div>
