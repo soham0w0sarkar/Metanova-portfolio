@@ -4,37 +4,32 @@ import { useGLTF, useAnimations } from "@react-three/drei";
 export function Model(props) {
   const group = React.useRef();
   const { nodes, materials, animations } = useGLTF(
-    import.meta.env.BASE_URL + "assets/earth/scene.gltf"
+    import.meta.env.BASE_URL + "assets/earth/compressed.gltf"
   );
   const { actions } = useAnimations(animations, group);
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
-          <group
-            name="3f0d8c1a7c7c45138e5b99b56838fcb9fbx"
-            rotation={[Math.PI / 2, 0, 0]}
-          >
-            <group name="Object_2">
-              <group name="RootNode">
-                <group name="Earth" rotation={[-Math.PI / 2, 0, 0]}>
-                  <mesh
-                    name="Earth_Material_#50_0"
-                    geometry={nodes["Earth_Material_#50_0"].geometry}
-                    material={materials.Material_50}
-                  />
-                </group>
-                <group
-                  name="EarthClouds"
-                  rotation={[-Math.PI / 2, -Math.PI / 9, 0]}
-                  scale={1.01}
-                >
-                  <mesh
-                    name="EarthClouds_Material_#62_0"
-                    geometry={nodes["EarthClouds_Material_#62_0"].geometry}
-                    material={materials.Material_62}
-                  />
-                </group>
+          <group name="root">
+            <group name="GLTF_SceneRootNode" rotation={[Math.PI / 2, 0, 0]}>
+              <group
+                name="Sphere_1"
+                rotation={[0, Math.PI / 5, 0]}
+                scale={4.499}
+              >
+                <mesh
+                  name="Object_4"
+                  geometry={nodes.Object_4.geometry}
+                  material={materials["Material.001"]}
+                />
+              </group>
+              <group name="Sphere001_2" scale={4.565}>
+                <mesh
+                  name="Object_6"
+                  geometry={nodes.Object_6.geometry}
+                  material={materials["Material.002"]}
+                />
               </group>
             </group>
           </group>
@@ -44,4 +39,4 @@ export function Model(props) {
   );
 }
 
-useGLTF.preload(import.meta.env.BASE_URL + "assets/earth/scene.gltf");
+useGLTF.preload(import.meta.env.BASE_URL + "assets/earth/compressed.gltf");

@@ -23,8 +23,8 @@ const ThreeCanvas = memo(() => (
     dpr={[1, 2]}
     performance={{ min: 0.5 }}
   >
-    <ambientLight intensity={2} />
-    <directionalLight position={[5, 3, 5]} intensity={1} />
+    <ambientLight intensity={10} />
+    <directionalLight position={[-5, 3, -5]} intensity={10} />
     <Stars radius={100} depth={50} count={3000} factor={4} fade speed={1} />
     <Model position={[0, 0, 0]} scale={1} />
     <OrbitControls
