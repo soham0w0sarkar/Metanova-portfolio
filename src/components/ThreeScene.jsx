@@ -2,6 +2,7 @@ import { useState, useEffect, lazy, Suspense, useCallback, memo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Stars, OrbitControls, useTexture } from "@react-three/drei";
 import { Earth } from "./Earth";
+import { Model } from "./Scene";
 import Navbar from "./Navbar";
 import { AnimatePresence, motion } from "framer-motion";
 import Lottie from "react-lottie";
@@ -25,7 +26,7 @@ const ThreeCanvas = memo(() => (
     <ambientLight intensity={2} />
     <directionalLight position={[5, 3, 5]} intensity={1} />
     <Stars radius={100} depth={50} count={3000} factor={4} fade speed={1} />
-    <Earth position={[0, 0, 0]} scale={1.5} />
+    <Model position={[0, 0, 0]} scale={1} />
     <OrbitControls
       enableZoom={false}
       enablePan={false}

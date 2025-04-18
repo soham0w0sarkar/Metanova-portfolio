@@ -6,8 +6,8 @@ import * as THREE from "three";
 export function Earth(props) {
   const earthRef = useRef();
 
-  const { nodes, materials } = useGLTF(
-    import.meta.env.BASE_URL + "assets/earth/scene.gltf"
+  const { nodes, materials } = useGLTF( import.meta.env.BASE_URL
+    + "assets/earth/scene.gltf"
   );
 
   const textures = useTexture({
