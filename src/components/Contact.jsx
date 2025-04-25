@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const Contact = () => {
     width: window.innerWidth,
     height: window.innerHeight,
   });
+  const [isSending, setIsSending] = useState(false);
   const nameInputRef = useRef(null);
   const emailInputRef = useRef(null);
   const messageInputRef = useRef(null);
@@ -66,11 +68,16 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log("Form submitted:", formData);
-    // Reset form
-    setFormData({ name: "", email: "", message: "" });
-    setCurrentField("name");
+    setIsSending(true);
+
+    // Simulate sending delay
+    setTimeout(() => {
+      console.log("Form submitted:", formData);
+      // Reset form
+      setFormData({ name: "", email: "", message: "" });
+      setCurrentField("name");
+      setIsSending(false);
+    }, 2000);
   };
 
   const isMobile = dimensions.width < 768;
@@ -88,7 +95,7 @@ const Contact = () => {
           {/* Left Column */}
           <div className="space-y-8">
             {/* Contact Form */}
-            <div className="bg-black/30 backdrop-blur-sm border border-blue-500/30 rounded-lg p-6">
+            <div className="bg-black/30 backdrop-blur-sm border border-blue-500/30 rounded-lg p-6 relative">
               <h3 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-blue-300">
                 Send Us a Message
               </h3>
@@ -161,6 +168,52 @@ const Contact = () => {
                   ></textarea>
                 </div>
               </form>
+
+              {/* Mail Sending Animation */}
+              <AnimatePresence>
+                {isSending && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute inset-0 bg-black/50 backdrop-blur-sm rounded-lg flex items-center justify-center"
+                  >
+                    <div className="text-center">
+                      <motion.div
+                        initial={{ y: 0 }}
+                        animate={{ y: -20 }}
+                        transition={{
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          duration: 1,
+                        }}
+                        className="mb-4"
+                      >
+                        <svg
+                          className="w-12 h-12 text-blue-400 mx-auto"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </motion.div>
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-blue-400 font-mono"
+                      >
+                        Sending your message...
+                      </motion.p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Location Info */}
