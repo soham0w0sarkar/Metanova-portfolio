@@ -7,6 +7,7 @@ import Navbar from "./Navbar";
 import { AnimatePresence, motion } from "framer-motion";
 import Lottie from "react-lottie";
 import animationData from "../lotties/astronaut-with-space-shuttle.json";
+import MusicSelector from "./MusicSelector";
 
 // Lazy load components to improve initial load time
 const Home = lazy(() => import("./Home"));
@@ -20,12 +21,12 @@ const ThreeCanvas = memo(() => (
   <Canvas
     camera={{ position: [0, 0, 10], fov: 75 }}
     className="absolute inset-0 z-0"
-    dpr={[1, 2]}
-    performance={{ min: 0.5 }}
+    dpr={[1, 1.5]}
+    performance={{ min: 0.3 }}
   >
     <ambientLight intensity={10} />
     <directionalLight position={[-5, 3, -5]} intensity={10} />
-    <Stars radius={100} depth={50} count={3000} factor={4} fade speed={1} />
+    <Stars radius={100} depth={50} count={1500} factor={4} fade speed={1} />
     <Model position={[0, 0, 0]} scale={1} />
     <OrbitControls
       enableZoom={false}
@@ -106,15 +107,14 @@ const Portfolio = () => {
 
     const preloadAssets = async () => {
       const startTime = Date.now();
-      // Allow at least 3 seconds for the loading animation
-      const minLoadingTime = 3000;
+      // Reduced minimum loading time from 3000ms to 1500ms
+      const minLoadingTime = 1500;
 
       try {
-        // Start tracking actual loading progress
         let actualProgress = 0;
         setLoadingProgress(actualProgress);
 
-        // Step 1: Preload components (30% of progress)
+        // Optimized preloading strategy
         const componentImports = [
           import("./Home"),
           import("./Projects"),
@@ -123,38 +123,39 @@ const Portfolio = () => {
           import("./Contact"),
         ];
 
-        for (let i = 0; i < componentImports.length; i++) {
-          await componentImports[i];
-          actualProgress = 5 + (i + 1) * 5; // 5-30% progress
-          setLoadingProgress(actualProgress);
-        }
+        // Load components in parallel instead of sequentially
+        await Promise.all(componentImports);
+        actualProgress = 40; // Jump to 40% after components are loaded
+        setLoadingProgress(actualProgress);
 
-        // Step 2: Preload images (30-70% of progress)
+        // Optimize image preloading
         const imagesToPreload = [
           import.meta.env.BASE_URL + "assets/logo.png",
           import.meta.env.BASE_URL + "assets/mugshot.png",
-          // Add other important images here
         ];
 
-        for (let i = 0; i < imagesToPreload.length; i++) {
-          await new Promise((resolve, reject) => {
-            const img = new Image();
-            img.src = imagesToPreload[i];
-            img.onload = resolve;
-            img.onerror = reject;
-          });
-          actualProgress = 30 + (i + 1) * (40 / imagesToPreload.length); // 30-70% progress
+        // Load images in parallel
+        await Promise.all(
+          imagesToPreload.map(
+            (src) =>
+              new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = src;
+                img.onload = resolve;
+                img.onerror = reject;
+              })
+          )
+        );
+        actualProgress = 80; // Jump to 80% after images are loaded
+        setLoadingProgress(actualProgress);
+
+        // Quick final preparations
+        for (let i = 0; i < 4; i++) {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          actualProgress = 80 + (i + 1) * 5;
           setLoadingProgress(actualProgress);
         }
 
-        // Step 3: Final preparations (70-100%)
-        for (let i = 0; i < 6; i++) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-          actualProgress = 70 + (i + 1) * 5; // 70-100% progress
-          setLoadingProgress(actualProgress);
-        }
-
-        // Ensure we show the loading screen for at least minLoadingTime
         const elapsed = Date.now() - startTime;
         if (elapsed < minLoadingTime) {
           await new Promise((resolve) =>
@@ -162,14 +163,12 @@ const Portfolio = () => {
           );
         }
 
-        // Finally complete the loading
         setLoadingProgress(100);
-        setTimeout(() => setIsLoaded(true), 800);
+        setTimeout(() => setIsLoaded(true), 400); // Reduced from 800ms to 400ms
       } catch (error) {
         console.error("Error during preloading:", error);
-        // Even on error, complete the loading process
         setLoadingProgress(100);
-        setTimeout(() => setIsLoaded(true), 800);
+        setTimeout(() => setIsLoaded(true), 400);
       }
     };
 
@@ -218,6 +217,9 @@ const Portfolio = () => {
               {renderSection()}
             </motion.div>
           </AnimatePresence>
+
+          {/* Add MusicSelector */}
+          <MusicSelector />
         </>
       )}
     </div>
